@@ -1,0 +1,76 @@
+Program:5
+form.html
+<!DOCTYPE html>
+<html>
+<body>
+  <h3>Add Student</h3>
+  <form action="/add" method="POST">
+    Name: <input name="name"><br>
+    Age: <input name="age"><br>
+    Course: <input name="course"><br>
+    <button>Add</button>
+  </form>
+
+  <h3>Update Student</h3>
+  <form action="/update" method="POST">
+    ID: <input name="id"><br>
+    Name: <input name="name"><br>
+    Age: <input name="age"><br>
+    Course: <input name="course"><br>
+    <button>Update</button>
+  </form>
+
+  <h3>Delete Student</h3>
+  <form action="/delete" method="POST">
+    ID: <input name="id"><br>
+    <button>Delete</button>
+  </form>
+</body>
+</html>
+
+server.js
+
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+
+mongoose.connect('mongodb://localhost:27017/studentsDB');
+
+const studentSchema = new mongoose.Schema({
+  name: String,
+  age: Number,
+  course: String
+});
+
+const Student = mongoose.model('Student', studentSchema);
+
+// Create
+app.post('/add', (req, res) => {
+  const s = new Student(req.body);
+  s.save().then(() => res.redirect('/students'));
+});
+
+// Read all
+app.get('/students', async (req, res) => {
+  const students = await Student.find();
+  res.send(students);
+});
+
+// Update
+app.post('/update', async (req, res) => {
+  await Student.updateOne({ _id: req.body.id }, req.body);
+  res.redirect('/students');
+});
+
+// Delete
+app.post('/delete', async (req, res) => {
+  await Student.deleteOne({ _id: req.body.id });
+  res.redirect('/students');
+});
+
+app.get('/', (req, res) => res.sendFile(__dirname + '/form.html'));
+
+app.listen(3000, () => console.log('MongoDB server running on http://localhost:3000'));

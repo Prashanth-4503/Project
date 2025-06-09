@@ -1,0 +1,74 @@
+Program:6
+form.html
+
+<!DOCTYPE html>
+<html>
+<body>
+  <h3>Add Event</h3>
+  <form action="/add" method="POST">
+    Name: <input name="name"><br>
+    Location: <input name="location"><br>
+    Date: <input name="date" type="date"><br>
+    <button>Add</button>
+  </form>
+
+  <h3>Update Event</h3>
+  <form action="/update" method="POST">
+    ID: <input name="id"><br>
+    Name: <input name="name"><br>
+    Location: <input name="location"><br>
+    Date: <input name="date" type="date"><br>
+    <button>Update</button>
+  </form>
+
+  <h3>Delete Event</h3>
+  <form action="/delete" method="POST">
+    ID: <input name="id"><br>
+    <button>Delete</button>
+  </form>
+</body>
+</html>
+
+server.js
+const express = require('express');
+const mysql = require('mysql');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '',   // your MySQL password
+  database: 'eventsDB'
+});
+
+db.connect();
+
+app.get('/', (req, res) => res.sendFile(__dirname + '/form.html'));
+
+// Create
+app.post('/add', (req, res) => {
+  db.query('INSERT INTO events SET ?', req.body, () => res.redirect('/events'));
+});
+
+// Read
+app.get('/events', (req, res) => {
+  db.query('SELECT * FROM events', (err, rows) => res.send(rows));
+});
+
+// Update
+app.post('/update', (req, res) => {
+  db.query('UPDATE events SET name=?, location=?, date=? WHERE id=?',
+    [req.body.name, req.body.location, req.body.date, req.body.id],
+    () => res.redirect('/events'));
+});
+
+// Delete
+app.post('/delete', (req, res) => {
+  db.query('DELETE FROM events WHERE id=?', [req.body.id], () => res.redirect('/events'));
+});
+
+app.listen(3000, () => console.log('MySQL server running on http://localhost:3000'));
+

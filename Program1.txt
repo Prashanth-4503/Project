@@ -1,0 +1,73 @@
+Program:1
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Form Validation</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
+    .error {
+      color: red;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>User Registration Form</h2>
+  <form id="signupForm" onsubmit="return validateForm()">
+    <label>Name:</label>
+    <input type="text" id="name" name="name"><br>
+
+    <label>Email:</label>
+    <input type="text" id="email" name="email"><br>
+
+    <label>Password:</label>
+    <input type="password" id="password" name="password"><br>
+
+    <p class="error" id="error"></p>
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+    function validateForm() {
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const error = document.getElementById("error");
+
+      error.textContent = "";
+
+      // Check empty fields
+      if (!name || !email || !password) {
+        error.textContent = "All fields are required.";
+        return false;
+      }
+
+      // Check email pattern
+      const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+      if (!email.match(emailPattern)) {
+        error.textContent = "Enter a valid email address.";
+        return false;
+      }
+
+      // Password length
+      if (password.length < 6) {
+        error.textContent = "Password must be at least 6 characters.";
+        return false;
+      }
+
+      alert("Form submitted successfully!");
+      return true;
+    }
+  </script>
+
+</body>
+</html>
+

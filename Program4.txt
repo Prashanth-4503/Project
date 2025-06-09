@@ -1,0 +1,62 @@
+Program:4
+server.js
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const app = express();
+
+app.use(express.urlencoded({extended:true}));
+
+app.get('/',(req,res)=>{res.sendFile(__dirname + '/views/index.html')});
+
+app.post('/submit',(req,res)=>{
+    const user = req.body;
+    const file = 'users.json';
+    const users = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file)):[];
+    users.push(user);
+    fs.writeFileSync(file,JSON.stringify(users,null,2));
+    res.redirect('/users');
+});
+
+app.get('/users',(req,res)=>{res.sendFile(__dirname+'/views/users.html')});
+
+app.get('/data',(req,res)=>{
+    const file = 'users.json';
+    res.json(fs.existsSync(file)?JSON.parse(fs.readFileSync(file)):[]);
+});
+
+app.listen(3000,()=>{
+    console.log("Server running at http://localhost:3000");
+})
+
+views>index.html
+<!DOCTYPE html>
+<html>
+<body>
+  <h2>User Form</h2>
+  <form action="/submit" method="POST">
+    Name: <input name="name"><br>
+    Email: <input name="email"><br>
+    Phone: <input name="phone"><br>
+    <button>Submit</button>
+  </form>
+</body>
+</html>
+
+views>users.html
+
+<!DOCTYPE html>
+<html>
+<body>
+  <h2>Users</h2>
+  <div id="list"></div>
+  <script>
+    fetch('/data')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('list').innerHTML =
+          data.map(u => `<p>${u.name}, ${u.email}, ${u.phone}</p>`).join('');
+      });
+  </script>
+</body>
+</html>

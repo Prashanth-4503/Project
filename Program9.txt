@@ -1,0 +1,42 @@
+Program:9
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+
+const app = express();
+app.use(bodyParser.json());
+app.use(cookieParser());
+
+// MongoDB connection
+mongoose.connect('mongodb://localhost:27017/auth_demo', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+// User Schema
+const User = mongoose.model('User', new mongoose.Schema({
+  username: String,
+  password: String
+}));
+
+// Signup
+app.post('/signup', async (req, res) => {
+  const { username, password } = req.body;
+  const exists = await User.findOne({ username });
+  if (exists) return res.status(400).send('User already exists');
+  await User.create({ username, password });
+  res.send('Signup successful');
+});
+
+// Login
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  const user = await User.findOne({ username, password });
+  if (!user) return res.status(401).send('Invalid credentials');
+  res.cookie('auth', username);
+  res.send('Login successful');
+});
+
+// Start Server
+app.listen(3000, () => console.log('Server running on http://localhost:3000'));
