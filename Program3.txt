@@ -10,7 +10,7 @@ http.createServer((req, res) => {
     const extname = path.extname(filePath);
     const contentType = extname === '.html' ? 'text/html' : 'text/plain';
 
-    fs.readFileSync(filePath, (err, content) => {
+    fs.readFile(filePath, (err, content) => {
         if (err) {
             res.writeHead(404, { 'Content-Type': 'text/plain' });
             res.end('404 Not Found');
@@ -19,12 +19,12 @@ http.createServer((req, res) => {
             res.end(content, 'utf-8');
         }
     })
-});
-listen(3000, () => {
+})
+.listen(3000, () => {
     console.log('Server running at http://localhost:3000');
 });
 
-public>index.html:
+views>index.html:
 <!DOCTYPE html>
 <html>
 <head>
